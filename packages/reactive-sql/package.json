@@ -29,5 +29,11 @@
   },
   "bugs": {
     "url": "https://github.com/PauloBarbeiro/reactive-sql/issues"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0 || ^17 || ^18"
+  },
+  "dependencies": {
+    "sql.js": "^1.6.2"
   }
 }
