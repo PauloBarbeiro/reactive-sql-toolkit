@@ -1,7 +1,5 @@
 # Reactive-sql
 
-This project uses Lerna (https://lerna.js.org).
+# [WIP] This library is under development!
 
-###To start
-
-
+Not ready to be used.
