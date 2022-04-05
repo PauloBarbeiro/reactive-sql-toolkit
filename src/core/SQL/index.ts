@@ -66,7 +66,8 @@ export const executeQuery = (query: string, params?: BindParams): QueryExecResul
 
     try {
         return db.exec(query, params)
-    } catch (error) {
+        // @ts-ignore
+    } catch (error: Error) {
         console.error(`SQL-lite Error: ${error.message}`)
         return
     }
