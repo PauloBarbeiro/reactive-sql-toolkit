@@ -1,23 +1,65 @@
-import { createSQL, executeQuery, WasmSources, database } from "./index";
+import {createSQL, executeQuery, createQueryFromSchema, WasmSources, database, Schema} from "./index";
 
 describe('Create Database to initialise the library', function () {
+    describe('createQueryFromSchema', () => {
+        it('should create a "CREATE TABLE" query', () => {
+            const schema: Schema = {
+                test: {
+                    fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
+                }
+            }
+
+            const query = createQueryFromSchema(schema)
+
+            expect(query).toEqual(
+                "CREATE TABLE test (id INTEGER, age INTEGER, name TEXT);"
+            )
+        })
+
+        it('should create a "CREATE TABLE" and "INSERT INTO" query', () => {
+            const schema: Schema = {
+                test: {
+                    fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
+                    values: [{id: 1, age: 10, name: 'Ling'}, {id: 2, age: 18, name: 'Paul'}]
+                }
+            }
+
+            const query = createQueryFromSchema(schema)
+
+            expect(query).toEqual(
+                "CREATE TABLE test (id INTEGER, age INTEGER, name TEXT);"
+                + "INSERT INTO test VALUES (1, 10, 'Ling');"
+                + "INSERT INTO test VALUES (2, 18, 'Paul');"
+            )
+        })
+    });
+
     describe('createSQL', () => {
         it('should initialize a database instance', async () => {
-            const db = await createSQL(WasmSources.test)
+            const schema: Schema = {
+                test: {
+                    fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
+                }
+            }
+
+            const db = await createSQL(WasmSources.test, schema)
 
             expect(db).toBeTruthy()
             expect(db).toHaveProperty('exec')
         }, 5000)
 
         it('should execute a SQL query', async () => {
-            const db = await createSQL(WasmSources.test)
+            const schema: Schema = {
+                test: {
+                    fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
+                    values: [{id: 1, age: 10, name: 'Ling'}, {id: 2, age: 18, name: 'Paul'}]
+                }
+            }
+
+            const db = await createSQL(WasmSources.test, schema)
 
             const result = db!.exec(
-                "DROP TABLE IF EXISTS test;\n"
-                + "CREATE TABLE test (id INTEGER, age INTEGER, name TEXT);"
-                + "INSERT INTO test VALUES ($id1, :age1, @name1);"
-                + "INSERT INTO test VALUES ($id2, :age2, @name2);"
-                + "SELECT id FROM test;"
+                 "SELECT id FROM test;"
                 + "SELECT age,name FROM test WHERE id=$id1",
                 {
                     "$id1": 1, ":age1": 1, "@name1": "Ling",
@@ -27,12 +69,12 @@ describe('Create Database to initialise the library', function () {
 
             expect(result).toEqual([
                 {columns:['id'],values:[[1],[2]]},
-                {columns:["age","name"],values:[[1,"Ling"]]},
+                {columns:["age","name"],values:[[10,"Ling"]]},
             ])
         }, 5000)
     })
 
-    describe('executeQuery', function () {
+    describe('executeQuery',  () => {
         beforeAll(() => {
             jest.resetAllMocks()
             database.destroy()
@@ -51,14 +93,14 @@ describe('Create Database to initialise the library', function () {
         })
 
         it('should execute a simple query', async () => {
-            const db = await createSQL(WasmSources.test)
+            const schema: Schema = {
+                test: {
+                    fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
+                    values: [{id: 1, age: 10, name: 'Ling'}, {id: 2, age: 18, name: 'Paul'}]
+                }
+            }
 
-            db!.exec(
-                "DROP TABLE IF EXISTS test;\n"
-                + "CREATE TABLE test (id INTEGER, age INTEGER, name TEXT);"
-                + "INSERT INTO test VALUES (1, 10, 'Ling');"
-                + "INSERT INTO test VALUES (2, 18, 'Paul');"
-            );
+            await createSQL(WasmSources.test, schema)
 
             const spyOnLogError = jest.spyOn(console, 'error')
             const result = executeQuery('SELECT * FROM test')
@@ -67,14 +109,14 @@ describe('Create Database to initialise the library', function () {
         })
 
         it('should execute a query with params', async () => {
-            const db = await createSQL(WasmSources.test)
+            const schema: Schema = {
+                test: {
+                    fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
+                    values: [{id: 1, age: 10, name: 'Ling'}, {id: 2, age: 18, name: 'Paul'}]
+                }
+            }
 
-            db!.exec(
-                "DROP TABLE IF EXISTS test;\n"
-                + "CREATE TABLE test (id INTEGER, age INTEGER, name TEXT);"
-                + "INSERT INTO test VALUES (1, 10, 'Ling');"
-                + "INSERT INTO test VALUES (2, 18, 'Paul');"
-            );
+            await createSQL(WasmSources.test, schema)
 
             const spyOnLogError = jest.spyOn(console, 'error')
             const result = executeQuery(
@@ -87,7 +129,7 @@ describe('Create Database to initialise the library', function () {
         })
 
         it('should return empty results', async () => {
-            const db = await createSQL(WasmSources.test)
+            await createSQL(WasmSources.test, {})
 
             const spyOnLogError = jest.spyOn(console, 'error')
             const result = executeQuery(

@@ -1,6 +1,6 @@
 import React from "react";
 import {getByText, render, fireEvent, waitFor} from '@testing-library/react'
-import { createSQL, WasmSources } from '../../core/SQL'
+import {createSQL, Schema, WasmSources} from '../../core/SQL'
 import {useQuery} from "./index";
 
 // [{"columns": ["age", "name"], "values": [[18, "Paul"]]}]
@@ -50,18 +50,14 @@ const TestComponent = () => {
 
 describe('useQuery', function () {
     beforeAll(async () => {
-        const db = await createSQL(WasmSources.test)
-
-        db!.exec(
-            "DROP TABLE IF EXISTS test;\n"
-            + "CREATE TABLE test (id INTEGER, age INTEGER, name TEXT);"
-            + "INSERT INTO test VALUES ($id1, :age1, @name1);"
-            + "INSERT INTO test VALUES ($id2, :age2, @name2);",
-            {
-                "$id1": 1, ":age1": 17, "@name1": "Ringo",
-                "$id2": 2, ":age2": 18, "@name2": "Paul"
+        const schema: Schema = {
+            test: {
+                fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
+                values: [{id: 1, age: 17, name: 'Ringo'}, {id: 2, age: 18, name: 'Paul'}]
             }
-        );
+        }
+
+        await createSQL(WasmSources.test, schema)
     })
 
     it('should execute a query and return some data', () => {
