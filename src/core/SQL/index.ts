@@ -16,7 +16,7 @@ export interface  QueryExecResult {
 export type BindParams = Array<SqlValue> | Record<string, SqlValue> | null
 
 export interface SqlLite {
-    exec: (query:string, params?: BindParams) => QueryExecResult
+    exec: (query:string, params?: BindParams) => Array<QueryExecResult>
 }
 
 export interface DatabaseHolder {
@@ -56,7 +56,7 @@ export const createSQL = async (path: string, name?: string) => {
 
 export const getDatabase = (): SqlLite | null => database.getInstance()
 
-export const executeQuery = (query: string, params?: BindParams): QueryExecResult | undefined => {
+export const executeQuery = (query: string, params?: BindParams): Array<QueryExecResult> | undefined => {
     let db = getDatabase()
 
     if(!db) {

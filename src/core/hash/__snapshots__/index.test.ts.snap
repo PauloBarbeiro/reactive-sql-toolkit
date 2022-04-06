@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`hash should create a basic predictable hash 1`] = `-1631577509`;
+
+exports[`hash should create a complex predictable hash 1`] = `-1367929158`;
