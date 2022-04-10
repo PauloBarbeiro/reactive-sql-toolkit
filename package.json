@@ -1,9 +1,10 @@
 {
   "name": "@paulobarbeiro/reactive-sql",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "author": "Paulo Barbeiro",
   "license": "GPL-3.0",
   "description": "React implementation of sql.js",
+  "keywords": ["React", "SQLite", "SQL.js", "hook", "wasm"],
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "files": [
