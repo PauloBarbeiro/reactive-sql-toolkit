@@ -21,10 +21,16 @@ export default [
             },
         ],
         plugins: [
-            resolve(),
+            resolve({
+                // pass custom options to the resolve plugin
+                customResolveOptions: {
+                    moduleDirectory: 'node_modules'
+                }
+            }),
             commonjs(),
             typescript({ tsconfig: "./tsconfig.json" }),
         ],
+        external: ['react', 'sql.js']
     },
     {
         input: "dist/esm/types/index.d.ts",
