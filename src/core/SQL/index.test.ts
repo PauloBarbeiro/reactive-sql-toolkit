@@ -1,12 +1,19 @@
 import {
     createSQL,
-    executeQuery,
     createQueryFromSchema,
+    readingQueryMatch,
+    writingQueryMatch,
+    tableFromReadQuery,
+    tableFromWritingQuery,
     registerQueryListeners,
     triggerActuators,
+    executeQuery,
+    queryPipeline,
+    insertQueryPipeline,
     WasmSources,
     database,
-    Schema, Recorder,
+    Schema,
+    Recorder,
 } from "./index";
 
 describe('Create Database to initialise the library', function () {
@@ -149,6 +156,86 @@ describe('Create Database to initialise the library', function () {
         })
     });
 
+    describe('readingQueryMatch', () => {
+        it('should return null for writing query', () => {
+            const regEx = readingQueryMatch(
+                "INSERT INTO test VALUES ($id1, :age1, @name1);",
+                ['test', 'table1', 'table2'],
+            )
+
+            expect(regEx).toEqual(null)
+        })
+
+        it('should return the match result for an reading query', () => {
+            const regEx = readingQueryMatch(
+                "SELECT age,name FROM test WHERE id=$id1",
+                ['test', 'table1', 'table2'],
+            )
+
+            expect(JSON.stringify(regEx)).toEqual(JSON.stringify(["SELECT age,name FROM test", "SELECT", "test"]))
+        })
+    })
+
+    describe('writingQueryMatch', () => {
+        it('should return the match for a writing query', () => {
+            const regEx = writingQueryMatch(
+                "INSERT INTO test VALUES ($id1, :age1, @name1);",
+                ['test', 'table1', 'table2'],
+            )
+
+            expect(JSON.stringify(regEx)).toEqual(JSON.stringify(["INSERT INTO test", "INSERT INTO", "test"]))
+        })
+
+        it('should return null for an reading query', () => {
+            const regEx = writingQueryMatch(
+                "SELECT age,name FROM test WHERE id=$id1",
+                ['test', 'table1', 'table2'],
+            )
+
+            expect(regEx).toEqual(null)
+        })
+    })
+
+    describe('tableFromReadQuery', () => {
+        it('should return null for writing query', () => {
+            const table = tableFromReadQuery(
+                "INSERT INTO test VALUES ($id1, :age1, @name1);",
+                ['test', 'table1', 'table2'],
+            )
+
+            expect(table).toEqual(null)
+        })
+
+        it('should return the table name in a reading query', () => {
+            const table = tableFromReadQuery(
+                "SELECT age,name FROM test WHERE id=$id1",
+                ['test', 'table1', 'table2'],
+            )
+
+            expect(table).toEqual("test")
+        })
+    })
+
+    describe('tableFromWritingQuery', () => {
+        it('should return the table name in a writing query', () => {
+            const table = tableFromWritingQuery(
+                "INSERT INTO test VALUES ($id1, :age1, @name1);",
+                ['test', 'table1', 'table2'],
+            )
+
+            expect(table).toEqual("test")
+        })
+
+        it('should return null in a reading query', () => {
+            const table = tableFromWritingQuery(
+                "SELECT age,name FROM test WHERE id=$id1",
+                ['test', 'table1', 'table2'],
+            )
+
+            expect(table).toEqual(null)
+        })
+    })
+
     describe('registerQueryListeners', () => {
         it('should ignore a writing query', () => {
             const updateState = jest.fn()
@@ -216,6 +303,88 @@ describe('Create Database to initialise the library', function () {
             )
 
             expect(updateState).not.toHaveBeenCalled()
+        })
+    })
+
+    describe('queryPipeline', () => {
+        beforeAll(async () => {
+            const schema: Schema = {
+                test: {
+                    fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
+                    values: [{id: 1, age: 10, name: 'Ling'}, {id: 2, age: 18, name: 'Paul'}]
+                }
+            }
+
+            await createSQL(WasmSources.test, schema)
+        })
+
+        beforeEach(() => {
+            jest.resetAllMocks()
+            Date.now = jest.fn(() => 1649577131008)
+        })
+
+        const updateStateFn = jest.fn()
+
+        it('should execute a select query', () => {
+            const result = queryPipeline(updateStateFn, "SELECT age,name FROM test WHERE id=2")
+            expect(result).toEqual([{"columns": ["age", "name"], "values": [[18, "Paul"]]}])
+            expect(updateStateFn).not.toHaveBeenCalled()
+        })
+
+        it('should execute a insert query and trigger the updateStateFn', () => {
+            const result = queryPipeline(updateStateFn, "INSERT INTO test VALUES (3, 20, 'Jane');")
+            expect(result).toEqual([])
+            expect(updateStateFn).toHaveBeenCalledWith(1649577131008)
+        })
+    })
+
+    describe('insertQueryPipeline', () => {
+        const updateStateFn = jest.fn()
+
+        beforeAll(async () => {
+            const schema: Schema = {
+                test: {
+                    fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
+                    values: [{id: 1, age: 10, name: 'Ling'}, {id: 2, age: 18, name: 'Paul'}]
+                }
+            }
+
+            await createSQL(WasmSources.test, schema)
+        })
+
+        beforeEach(() => {
+            jest.resetAllMocks()
+            Date.now = jest.fn(() => 1649577131008)
+        })
+
+        it('should ignore select queries', () => {
+            const recorder: Recorder = {
+                test: [new WeakRef(updateStateFn)]
+            }
+
+            const result = insertQueryPipeline(
+                updateStateFn,
+                "SELECT age,name FROM test WHERE id=2",
+                undefined,
+                recorder,
+            )
+            expect(result).toEqual(undefined)
+            expect(updateStateFn).not.toHaveBeenCalled()
+        })
+
+        it('should execute input queries', () => {
+            const recorder: Recorder = {
+                test: [new WeakRef(updateStateFn)]
+            }
+
+            const result = insertQueryPipeline(
+                updateStateFn,
+                "INSERT INTO test VALUES (3, 20, 'Jane');",
+                undefined,
+                recorder,
+            )
+            expect(result).toEqual([])
+            expect(updateStateFn).toHaveBeenCalledWith(1649577131008)
         })
     })
 });

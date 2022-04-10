@@ -1,21 +1,15 @@
-import {useEffect, useState} from 'react'
-import { executeQuery } from '../../core/SQL'
-import { hash } from '../../core/hash'
+import {useCallback, useState} from 'react'
+import {insertQueryPipeline, queryPipeline} from '../../core/SQL'
 
 export function useQuery(query: string, depths?: Array<string | number| boolean | undefined | null>) {
-    const [updatedAt, setUpdatedAt] = useState()
-    const [queryId, setQueryId] = useState<number | null>(null)
-    /*
-    const [currentDepth, setCurrentDepth] = useState(depths)
-    if(currentDepth && currentDepth.length !== depths?.length) {
-        throw new Error('useQuery Error: depths array must have the same length across the life cycle.')
-    }
-    // */
+    const [updatedAt, setUpdatedAt] = useState<number>()
 
-    useEffect(() => {
-        const hashId = hash(query)
-        setQueryId(hashId)
+    const writeQueryFn = useCallback((query: string) => {
+        insertQueryPipeline(setUpdatedAt, query)
     }, [])
 
-    return executeQuery(query)
+    return {
+        result: queryPipeline(setUpdatedAt, query),
+        writeQueryFn
+    }
 }

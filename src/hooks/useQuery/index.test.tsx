@@ -4,14 +4,16 @@ import {createSQL, Schema, WasmSources} from '../../core/SQL'
 import {useQuery} from "./index";
 
 const TestComponent = () => {
-    const result = useQuery("SELECT age,name FROM test")
+    const {result, writeQueryFn } = useQuery("SELECT age,name FROM test")
 
     const handleAddLennon = () => {
         console.log(' add Lennon')
+        writeQueryFn("INSERT INTO test VALUES (3, 22, 'John');")
     }
 
     const handleAddGeorge = () => {
-        console.log(' add George')
+        console.log(' add Harrison')
+        writeQueryFn("INSERT INTO test VALUES (4, 25, 'George');")
     }
 
     if(!result || result.length === 0) {
@@ -41,7 +43,7 @@ const TestComponent = () => {
                 </tbody>
             </table>
             <button onClick={handleAddLennon}>Add Lennon</button>
-            <button onClick={handleAddGeorge}>Add George</button>
+            <button onClick={handleAddGeorge}>Add Harrison</button>
         </>
     )
 }
@@ -65,7 +67,7 @@ describe('useQuery', function () {
         expect(getByText('Paul')).toBeTruthy()
     })
 
-    it('should react to a change in the queried table', async () => {
+    it('should react to a change in the queried table (add John Lennon)', async () => {
         const { container, getByText } = render(<TestComponent />)
         expect(container).toMatchSnapshot()
 
@@ -75,6 +77,19 @@ describe('useQuery', function () {
 
         await waitFor(() => {
             expect(getByText('John')).toBeTruthy()
+        })
+    })
+
+    it('should react to a change in the queried table (add George Harrison)', async () => {
+        const { container, getByText } = render(<TestComponent />)
+        expect(container).toMatchSnapshot()
+
+        const addJohnBtn = getByText('Add Harrison')
+
+        fireEvent.click(addJohnBtn)
+
+        await waitFor(() => {
+            expect(getByText('George')).toBeTruthy()
         })
     })
 });

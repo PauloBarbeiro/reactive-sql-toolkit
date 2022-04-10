@@ -47,12 +47,74 @@ exports[`useQuery should execute a query and return some data 1`] = `
     Add Lennon
   </button>
   <button>
-    Add George
+    Add Harrison
   </button>
 </div>
 `;
 
-exports[`useQuery should react to a change in the queried table 1`] = `
+exports[`useQuery should react to a change in the queried table (add George Harrison) 1`] = `
+<div>
+  <table>
+    <caption>
+      Table results
+    </caption>
+    <thead>
+      <tr>
+        <th
+          scope="col"
+        >
+          age
+        </th>
+        <th
+          scope="col"
+        >
+          name
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th
+          scope="row"
+        >
+          Ringo
+        </th>
+        <td>
+          17
+        </td>
+      </tr>
+      <tr>
+        <th
+          scope="row"
+        >
+          Paul
+        </th>
+        <td>
+          18
+        </td>
+      </tr>
+      <tr>
+        <th
+          scope="row"
+        >
+          John
+        </th>
+        <td>
+          22
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <button>
+    Add Lennon
+  </button>
+  <button>
+    Add Harrison
+  </button>
+</div>
+`;
+
+exports[`useQuery should react to a change in the queried table (add John Lennon) 1`] = `
 <div>
   <table>
     <caption>
@@ -96,10 +158,10 @@ exports[`useQuery should react to a change in the queried table 1`] = `
     </tbody>
   </table>
   <button>
-    Add John
+    Add Lennon
   </button>
   <button>
-    Add George
+    Add Harrison
   </button>
 </div>
 `;

@@ -85,7 +85,7 @@ export const database: DatabaseHolder = {
 const tables: Array<string> = []
 
 export type Recorder = Record<string, Array<WeakRef<(t:number) => void>>>
-const recorder: Recorder = {}
+const GlobalRecorder: Recorder = {}
 
 export const createSQL = async (path: string, schema: Schema) => {
     try {
@@ -109,15 +109,40 @@ export const createSQL = async (path: string, schema: Schema) => {
 
 export const getDatabase = (): SqlLite | null => database.getInstance()
 
-export const registerQueryListeners = (updateState: (time: number) => void, query: string, tables: Array<string>, recorder: Recorder):void => {
+export const readingQueryMatch = (query: string, tables: Array<string>): RegExpMatchArray | null => {
     const readRegEx = new RegExp(`^(SELECT).+(?<table>${tables.join('|')})`)
-    const readRes = query.match(readRegEx)
-    // const writeRegEx = new RegExp(`^(INSERT INTO).+(?<table>${tables.join('|')})`)
-    // const writeRes = query.match(writeRegEx)
+    return query.match(readRegEx)
+}
 
-    const table = readRes?.groups?.table
+export const writingQueryMatch = (query: string, tables: Array<string>): RegExpMatchArray | null => {
+    const readRegEx = new RegExp(`^(INSERT INTO).+(?<table>${tables.join('|')})`)
+    return query.match(readRegEx)
+}
 
-    if(readRes && table) {
+export const tableFromReadQuery = (query: string, tables: Array<string>): string | null => {
+    const regExRes = readingQueryMatch(query, tables)
+    const table = regExRes?.groups?.table
+    if(table) {
+        return table
+    }
+
+    return null
+}
+
+export const tableFromWritingQuery = (query: string, tables: Array<string>): string | null => {
+    const regExRes = writingQueryMatch(query, tables)
+    const table = regExRes?.groups?.table
+    if(table) {
+        return table
+    }
+
+    return null
+}
+
+export const registerQueryListeners = (updateState: (time: number) => void, query: string, tables: Array<string>, recorder: Recorder):void => {
+    const table = tableFromReadQuery(query, tables)
+
+    if(table) {
         if(!recorder[table]) {
             recorder[table] = []
         }
@@ -127,12 +152,9 @@ export const registerQueryListeners = (updateState: (time: number) => void, quer
 }
 
 export const triggerActuators = (query: string, tables: Array<string>, recorder: Recorder):void => {
-    const writeRegEx = new RegExp(`^(INSERT INTO).+(?<table>${tables.join('|')})`)
-    const writeRes = query.match(writeRegEx)
+    const table = tableFromWritingQuery(query, tables)
 
-    const table = writeRes?.groups?.table
-
-    if(writeRes && table) {
+    if(table) {
         const timestamp = Date.now()
         if(!recorder[table]) {
             return
@@ -175,11 +197,26 @@ export const queryPipeline = (
     query: string,
     params?: BindParams,
 ): Array<QueryExecResult> | undefined => {
-    registerQueryListeners(updateStateFn, query, tables, recorder)
+    registerQueryListeners(updateStateFn, query, tables, GlobalRecorder)
     const result = executeQuery(query, params)
-    if(result) {
-        triggerActuators(query, tables, recorder)
+    triggerActuators(query, tables, GlobalRecorder)
+
+    return result
+}
+
+export const insertQueryPipeline = (
+    updateStateFn: (time: number) => void,
+    query: string,
+    params?: BindParams,
+    recorder: Recorder = GlobalRecorder
+): Array<QueryExecResult> | undefined => {
+    const regExRes = writingQueryMatch(query, tables)
+    if(!regExRes) {
+        return
     }
+
+    const result = executeQuery(query, params)
+    triggerActuators(query, tables, recorder)
     return result
 }
 
@@ -187,5 +224,6 @@ export default {
     createQueryFromSchema,
     createSQL,
     // getDatabase,
-    queryPipeline
+    queryPipeline,
+    insertQueryPipeline,
 }
