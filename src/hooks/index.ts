@@ -1,5 +1,1 @@
-import { useQuery } from './useQuery'
-
-export default {
-    useQuery
-}
+export { useQuery } from './useQuery'

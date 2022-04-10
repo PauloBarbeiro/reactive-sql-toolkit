@@ -1,5 +1,1 @@
-import { createSQL } from './SQL'
-
-export default {
-    createSQL
-}
+export { createSQL } from './SQL'

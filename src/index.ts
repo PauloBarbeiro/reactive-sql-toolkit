@@ -1,3 +1,4 @@
-export * from './components';
-export * from './hooks';
-export * from './core';
+import {createSQL} from './core'
+export {useQuery} from './hooks'
+
+export default createSQL
