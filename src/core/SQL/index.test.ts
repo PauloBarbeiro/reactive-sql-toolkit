@@ -10,11 +10,15 @@ import {
     executeQuery,
     queryPipeline,
     insertQueryPipeline,
-    WasmSources,
     database,
+} from "./index";
+
+// Types
+import {
+    WasmSources,
     Schema,
     Recorder,
-} from "./index";
+} from '../../types'
 
 describe('Create Database to initialise the library', function () {
     describe('createQueryFromSchema', () => {

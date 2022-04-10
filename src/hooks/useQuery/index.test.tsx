@@ -1,6 +1,7 @@
 import React from "react";
 import {getByText, render, fireEvent, waitFor} from '@testing-library/react'
-import {createSQL, Schema, WasmSources} from '../../core/SQL'
+import {Schema, WasmSources} from '../../types'
+import {createSQL} from '../../core/SQL'
 import {useQuery} from "./index";
 
 const TestComponent = () => {

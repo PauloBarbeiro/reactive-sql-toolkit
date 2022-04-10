@@ -1,5 +1,5 @@
 import createSQL from './index';
-import {Schema, WasmSources} from "./core/SQL";
+import {Schema, WasmSources} from "./types";
 
 describe('createSQL', () => {
     it('should execute the createSQL function', async () => {
