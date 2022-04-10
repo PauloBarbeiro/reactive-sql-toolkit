@@ -1,4 +1,13 @@
-import {createSQL, executeQuery, createQueryFromSchema, WasmSources, database, Schema} from "./index";
+import {
+    createSQL,
+    executeQuery,
+    createQueryFromSchema,
+    registerQueryListeners,
+    triggerActuators,
+    WasmSources,
+    database,
+    Schema, Recorder,
+} from "./index";
 
 describe('Create Database to initialise the library', function () {
     describe('createQueryFromSchema', () => {
@@ -9,7 +18,7 @@ describe('Create Database to initialise the library', function () {
                 }
             }
 
-            const query = createQueryFromSchema(schema)
+            const [query] = createQueryFromSchema(schema)
 
             expect(query).toEqual(
                 "CREATE TABLE test (id INTEGER, age INTEGER, name TEXT);"
@@ -24,7 +33,7 @@ describe('Create Database to initialise the library', function () {
                 }
             }
 
-            const query = createQueryFromSchema(schema)
+            const [query] = createQueryFromSchema(schema)
 
             expect(query).toEqual(
                 "CREATE TABLE test (id INTEGER, age INTEGER, name TEXT);"
@@ -131,7 +140,7 @@ describe('Create Database to initialise the library', function () {
         it('should return empty results', async () => {
             await createSQL(WasmSources.test, {})
 
-            const spyOnLogError = jest.spyOn(console, 'error')
+            const spyOnLogError = jest.spyOn(console, 'error').mockImplementation(() => {/*Silent*/})
             const result = executeQuery(
                 "SELECT age,name FROM test",
                 )
@@ -139,4 +148,74 @@ describe('Create Database to initialise the library', function () {
             expect(result).toEqual(undefined)
         })
     });
+
+    describe('registerQueryListeners', () => {
+        it('should ignore a writing query', () => {
+            const updateState = jest.fn()
+
+            const recorder: Recorder = {}
+
+            registerQueryListeners(
+                updateState,
+            "INSERT INTO test VALUES ($id1, :age1, @name1);",
+                ['test', 'table1', 'table2'],
+                recorder
+            )
+
+            expect(recorder).toEqual({})
+        })
+
+        it('should register a new listener for an reading query', () => {
+            const updateState = jest.fn()
+
+            const recorder: Recorder = {}
+
+            registerQueryListeners(
+                updateState,
+                "SELECT age,name FROM test WHERE id=$id1",
+                ['test', 'table1', 'table2'],
+                recorder
+            )
+            const actuator = recorder['test'][0].deref()
+            expect(actuator).toEqual(updateState)
+        })
+    })
+
+    describe('triggerActuators', () => {
+        const updateState = jest.fn()
+        const recorder: Recorder = {
+            test: []
+        }
+
+        beforeAll(() => {
+            // @ts-ignore
+            recorder['test']= [new WeakRef(updateState)]
+        })
+
+        beforeEach(() => {
+            jest.resetAllMocks()
+            Date.now = jest.fn(() => 1649577131008)
+        })
+
+        it('should trigger the actuators for a writing query', () => {
+
+            triggerActuators(
+                "INSERT INTO test VALUES ($id1, :age1, @name1);",
+                ['test', 'table1', 'table2'],
+                recorder
+            )
+
+            expect(updateState).toHaveBeenLastCalledWith(1649577131008)
+        })
+
+        it('should ignore a reading query', () => {
+            triggerActuators(
+                "SELECT age,name FROM test WHERE id=$id1",
+                ['test', 'table1', 'table2'],
+                recorder
+            )
+
+            expect(updateState).not.toHaveBeenCalled()
+        })
+    })
 });

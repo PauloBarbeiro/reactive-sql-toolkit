@@ -3,8 +3,6 @@ import {getByText, render, fireEvent, waitFor} from '@testing-library/react'
 import {createSQL, Schema, WasmSources} from '../../core/SQL'
 import {useQuery} from "./index";
 
-// [{"columns": ["age", "name"], "values": [[18, "Paul"]]}]
-
 const TestComponent = () => {
     const result = useQuery("SELECT age,name FROM test")
 

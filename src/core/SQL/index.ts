@@ -38,7 +38,7 @@ export interface Schema {
     }
 }
 
-export const createQueryFromSchema = (schema: Schema): string => {
+export const createQueryFromSchema = (schema: Schema): [string, Array<string>] => {
     const tables = Object.keys(schema)
 
     const createTable = "CREATE TABLE"
@@ -66,7 +66,7 @@ export const createQueryFromSchema = (schema: Schema): string => {
         query += `${createTable} ${table} (${fieldsPart});${insertPart}`
     })
 
-    return query
+    return [query, tables]
 }
 
 export const database: DatabaseHolder = {
@@ -82,6 +82,11 @@ export const database: DatabaseHolder = {
     }
 }
 
+const tables: Array<string> = []
+
+export type Recorder = Record<string, Array<WeakRef<(t:number) => void>>>
+const recorder: Recorder = {}
+
 export const createSQL = async (path: string, schema: Schema) => {
     try {
         const SQL = await initSqlJs({
@@ -91,7 +96,8 @@ export const createSQL = async (path: string, schema: Schema) => {
         const db: SqlLite = new SQL.Database()
         database.setInstance(db)
 
-        const query = createQueryFromSchema(schema)
+        const [query, tablesList] = createQueryFromSchema(schema)
+        tables.push(...tablesList)
         db.exec(query)
 
         return db
@@ -102,6 +108,50 @@ export const createSQL = async (path: string, schema: Schema) => {
 }
 
 export const getDatabase = (): SqlLite | null => database.getInstance()
+
+export const registerQueryListeners = (updateState: (time: number) => void, query: string, tables: Array<string>, recorder: Recorder):void => {
+    const readRegEx = new RegExp(`^(SELECT).+(?<table>${tables.join('|')})`)
+    const readRes = query.match(readRegEx)
+    // const writeRegEx = new RegExp(`^(INSERT INTO).+(?<table>${tables.join('|')})`)
+    // const writeRes = query.match(writeRegEx)
+
+    const table = readRes?.groups?.table
+
+    if(readRes && table) {
+        if(!recorder[table]) {
+            recorder[table] = []
+        }
+
+        recorder[table].push(new WeakRef<(t: number) => void>(updateState))
+    }
+}
+
+export const triggerActuators = (query: string, tables: Array<string>, recorder: Recorder):void => {
+    const writeRegEx = new RegExp(`^(INSERT INTO).+(?<table>${tables.join('|')})`)
+    const writeRes = query.match(writeRegEx)
+
+    const table = writeRes?.groups?.table
+
+    if(writeRes && table) {
+        const timestamp = Date.now()
+        if(!recorder[table]) {
+            return
+        }
+
+        new Promise((resolve, reject) => {
+            try{
+                recorder[table].forEach(weakRef => {
+                    const fnRef = weakRef.deref()
+                    fnRef && fnRef(timestamp)
+                })
+                resolve(1)
+            } catch (err) {
+                console.error('UPDATE ERROR: ', err)
+                reject()
+            }
+        })
+    }
+}
 
 export const executeQuery = (query: string, params?: BindParams): Array<QueryExecResult> | undefined => {
     let db = getDatabase()
@@ -120,9 +170,22 @@ export const executeQuery = (query: string, params?: BindParams): Array<QueryExe
     }
 }
 
+export const queryPipeline = (
+    updateStateFn: (time: number) => void,
+    query: string,
+    params?: BindParams,
+): Array<QueryExecResult> | undefined => {
+    registerQueryListeners(updateStateFn, query, tables, recorder)
+    const result = executeQuery(query, params)
+    if(result) {
+        triggerActuators(query, tables, recorder)
+    }
+    return result
+}
+
 export default {
     createQueryFromSchema,
     createSQL,
     // getDatabase,
-    executeQuery
+    queryPipeline
 }
