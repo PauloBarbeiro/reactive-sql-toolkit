@@ -1,6 +1,6 @@
 {
   "name": "@paulobarbeiro/reactive-sql",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "author": "Paulo Barbeiro",
   "license": "GPL-3.0",
   "description": "React implementation of sql.js",
