@@ -137,6 +137,7 @@ const App: FC = () => {
 
 Road Map:
 - Fix types export
+- Implement NPM build pipeline
 - Improve documentation
 - Implement functions to support uses in Redux middlewares, Mobex and Recoil
 - Support SQL Views
