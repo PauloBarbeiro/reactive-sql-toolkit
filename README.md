@@ -11,7 +11,7 @@ This hook enables reactive behavior with sql.js library.
 
 ## Usage
 
-1. Install sql.js and reactive-sql
+1. Install sql.js and reactive-sql-toolkit
 ```shell
 npm install sql.js reactive-sql-toolkit
 ```
