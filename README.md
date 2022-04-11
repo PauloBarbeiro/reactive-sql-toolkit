@@ -1,4 +1,10 @@
-# Reactive-sql
+# Reactive-sql-toolkit
+
+Library with a toolkit for using SQLite (wasm) on React apps. The tools are:
+- Hooks: read, and write from the database :heavy_check_mark:
+- Functions to execute queries on the database for multiple purposes :construction:
+- API to create schemas for the database :construction:
+- API to sync and backup the data. :construction:
 
 Simple React Hook that enables use of SQLite on React apps.
 This hook enables reactive behavior with sql.js library.
