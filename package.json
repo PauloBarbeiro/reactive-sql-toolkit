@@ -1,5 +1,5 @@
 {
-  "name": "@paulobarbeiro/reactive-sql",
+  "name": "reactive-sql-toolkit",
   "version": "0.1.6",
   "author": "Paulo Barbeiro",
   "license": "GPL-3.0",
@@ -36,16 +36,5 @@
   "peerDependencies": {
     "react": ">= 16.0.0",
     "sql.js": "^1.6.2"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/PauloBarbeiro/reactive-sql.git"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/paulobarbeiro"
-  },
-  "bugs": {
-    "url": "https://github.com/PauloBarbeiro/reactive-sql/issues"
-  },
-  "homepage": "https://github.com/PauloBarbeiro/reactive-sql#readme"
+  }
 }
