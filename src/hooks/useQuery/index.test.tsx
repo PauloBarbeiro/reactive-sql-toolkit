@@ -8,12 +8,10 @@ const TestComponent = () => {
     const {result, writeQueryFn } = useQuery("SELECT age,name FROM test")
 
     const handleAddLennon = () => {
-        console.log(' add Lennon')
         writeQueryFn("INSERT INTO test VALUES (3, 22, 'John');")
     }
 
     const handleAddGeorge = () => {
-        console.log(' add Harrison')
         writeQueryFn("INSERT INTO test VALUES (4, 25, 'George');")
     }
 
