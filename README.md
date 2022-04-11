@@ -71,7 +71,7 @@ Check for more details in the [samples repository](https://github.com/PauloBarbe
 ```typescript jsx
 import { createRoot } from 'react-dom/client';
 import React, {FC} from 'react';
-import createSQL, { useQuery } from '@paulobarbeiro/reactive-sql'
+import createSQL, { useQuery } from 'reactive-sql-toolkit'
 
 // Defines a database schema
 const schema: Schema = {
