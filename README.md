@@ -7,7 +7,7 @@ This hook enables reactive behavior with sql.js library.
 
 1. Install sql.js and reactive-sql
 ```shell
-npm install sql.js @paulobarbeiro/reactive-sql
+npm install sql.js reactive-sql-toolkit
 ```
 
 2. Export the wasm file from SQL.js folder to your distribution folder.
@@ -137,5 +137,7 @@ const App: FC = () => {
 
 Road Map:
 - Fix types export
-- Support Views
 - Improve documentation
+- Implement functions to support uses in Redux middlewares, Mobex and Recoil
+- Support SQL Views
+- Synchronization with server databases

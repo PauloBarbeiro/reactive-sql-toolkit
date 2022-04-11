@@ -4,7 +4,7 @@
   "author": "Paulo Barbeiro",
   "license": "GPL-3.0",
   "description": "React implementation of sql.js",
-  "keywords": ["React", "SQLite", "SQL.js", "hook", "wasm"],
+  "keywords": ["React", "SQLite", "SQL.js", "sql", "hook", "wasm"],
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "files": [
