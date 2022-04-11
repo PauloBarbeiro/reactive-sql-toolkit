@@ -13,8 +13,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "rollup": "rollup -c",
-    "test": "jest",
-    "ci": "npm install && npm run test && npm run rollup"
+    "test": "jest"
   },
   "devDependencies": {
     "@babel/core": "^7.17.8",
