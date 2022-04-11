@@ -36,5 +36,9 @@
   "peerDependencies": {
     "react": ">= 16.0.0",
     "sql.js": "^1.6.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PauloBarbeiro/reactive-sql-toolkit.git"
   }
 }
