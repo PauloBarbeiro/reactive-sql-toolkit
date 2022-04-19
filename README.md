@@ -224,6 +224,7 @@ return (
 - Implement functions to support uses in Redux middlewares, Mobex and Recoil
 - Improve documentation
 - Fix types export
+- Add "dependencies" for hooks
 - Implement API to add SQL functions
 - Support SQL Views
 - Synchronization with server databases
