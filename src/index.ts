@@ -1,4 +1,4 @@
-import {createSQL} from './core'
-export {useQuery} from './hooks'
+import { createSQL } from './core'
+export { useQuery, useInsert, useSelect } from './hooks'
 
 export default createSQL
