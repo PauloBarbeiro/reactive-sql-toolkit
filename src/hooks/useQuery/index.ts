@@ -5,7 +5,7 @@ export function useQuery(query: string, depths?: Array<string | number| boolean 
     const [updatedAt, setUpdatedAt] = useState<number>()
 
     const writeQueryFn = useCallback((query: string) => {
-        insertQueryPipeline(setUpdatedAt, query)
+        insertQueryPipeline(/*setUpdatedAt,*/ query)
     }, [])
 
     return {

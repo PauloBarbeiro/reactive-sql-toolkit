@@ -18,10 +18,17 @@ export interface SqlLite {
     exec: (query:string, params?: BindParams) => Array<QueryExecResult>
 }
 
+/**
+ * Defines the Singleton holding the database instance.
+ */
 export interface DatabaseHolder {
+    // The database instance
     instance: SqlLite | null
+    // Setter of the instance
     setInstance: (bd: SqlLite) => void
+    // Getter of the instance
     getInstance: () => SqlLite | null
+    // Instance destructor
     destroy: () => void
 }
 
@@ -37,4 +44,10 @@ export interface Schema {
     }
 }
 
+/**
+ * Defines the Recorder type.
+ * Each string in the Record is associated with a table.
+ * Each weakRef item is connected to a 'reactive' function that must be fired
+ * after an insert query.
+ */
 export type Recorder = Record<string, Array<WeakRef<(t:number) => void>>>

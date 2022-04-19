@@ -1,10 +1,5 @@
 import {
     createSQL,
-    createQueryFromSchema,
-    readingQueryMatch,
-    writingQueryMatch,
-    tableFromReadQuery,
-    tableFromWritingQuery,
     registerQueryListeners,
     triggerActuators,
     executeQuery,
@@ -21,39 +16,6 @@ import {
 } from '../../types'
 
 describe('Create Database to initialise the library', function () {
-    describe('createQueryFromSchema', () => {
-        it('should create a "CREATE TABLE" query', () => {
-            const schema: Schema = {
-                test: {
-                    fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
-                }
-            }
-
-            const [query] = createQueryFromSchema(schema)
-
-            expect(query).toEqual(
-                "CREATE TABLE test (id INTEGER, age INTEGER, name TEXT);"
-            )
-        })
-
-        it('should create a "CREATE TABLE" and "INSERT INTO" query', () => {
-            const schema: Schema = {
-                test: {
-                    fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
-                    values: [{id: 1, age: 10, name: 'Ling'}, {id: 2, age: 18, name: 'Paul'}]
-                }
-            }
-
-            const [query] = createQueryFromSchema(schema)
-
-            expect(query).toEqual(
-                "CREATE TABLE test (id INTEGER, age INTEGER, name TEXT);"
-                + "INSERT INTO test VALUES (1, 10, 'Ling');"
-                + "INSERT INTO test VALUES (2, 18, 'Paul');"
-            )
-        })
-    });
-
     describe('createSQL', () => {
         it('should initialize a database instance', async () => {
             const schema: Schema = {
@@ -159,86 +121,6 @@ describe('Create Database to initialise the library', function () {
             expect(result).toEqual(undefined)
         })
     });
-
-    describe('readingQueryMatch', () => {
-        it('should return null for writing query', () => {
-            const regEx = readingQueryMatch(
-                "INSERT INTO test VALUES ($id1, :age1, @name1);",
-                ['test', 'table1', 'table2'],
-            )
-
-            expect(regEx).toEqual(null)
-        })
-
-        it('should return the match result for an reading query', () => {
-            const regEx = readingQueryMatch(
-                "SELECT age,name FROM test WHERE id=$id1",
-                ['test', 'table1', 'table2'],
-            )
-
-            expect(JSON.stringify(regEx)).toEqual(JSON.stringify(["SELECT age,name FROM test", "SELECT", "test"]))
-        })
-    })
-
-    describe('writingQueryMatch', () => {
-        it('should return the match for a writing query', () => {
-            const regEx = writingQueryMatch(
-                "INSERT INTO test VALUES ($id1, :age1, @name1);",
-                ['test', 'table1', 'table2'],
-            )
-
-            expect(JSON.stringify(regEx)).toEqual(JSON.stringify(["INSERT INTO test", "INSERT INTO", "test"]))
-        })
-
-        it('should return null for an reading query', () => {
-            const regEx = writingQueryMatch(
-                "SELECT age,name FROM test WHERE id=$id1",
-                ['test', 'table1', 'table2'],
-            )
-
-            expect(regEx).toEqual(null)
-        })
-    })
-
-    describe('tableFromReadQuery', () => {
-        it('should return null for writing query', () => {
-            const table = tableFromReadQuery(
-                "INSERT INTO test VALUES ($id1, :age1, @name1);",
-                ['test', 'table1', 'table2'],
-            )
-
-            expect(table).toEqual(null)
-        })
-
-        it('should return the table name in a reading query', () => {
-            const table = tableFromReadQuery(
-                "SELECT age,name FROM test WHERE id=$id1",
-                ['test', 'table1', 'table2'],
-            )
-
-            expect(table).toEqual("test")
-        })
-    })
-
-    describe('tableFromWritingQuery', () => {
-        it('should return the table name in a writing query', () => {
-            const table = tableFromWritingQuery(
-                "INSERT INTO test VALUES ($id1, :age1, @name1);",
-                ['test', 'table1', 'table2'],
-            )
-
-            expect(table).toEqual("test")
-        })
-
-        it('should return null in a reading query', () => {
-            const table = tableFromWritingQuery(
-                "SELECT age,name FROM test WHERE id=$id1",
-                ['test', 'table1', 'table2'],
-            )
-
-            expect(table).toEqual(null)
-        })
-    })
 
     describe('registerQueryListeners', () => {
         it('should ignore a writing query', () => {
@@ -367,7 +249,6 @@ describe('Create Database to initialise the library', function () {
             }
 
             const result = insertQueryPipeline(
-                updateStateFn,
                 "SELECT age,name FROM test WHERE id=2",
                 undefined,
                 recorder,
@@ -382,7 +263,6 @@ describe('Create Database to initialise the library', function () {
             }
 
             const result = insertQueryPipeline(
-                updateStateFn,
                 "INSERT INTO test VALUES (3, 20, 'Jane');",
                 undefined,
                 recorder,
