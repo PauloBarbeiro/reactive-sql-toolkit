@@ -183,7 +183,7 @@ createSQL('http://localhost:3030/sql-wasm.wasm', schema)
 
 ### useQuery [React Hook]
 
-Hook to a component to a particular SQL query. It enables a listener that will rerender a component on every 
+Hook a component to a particular SQL query. It enables a listener that will rerender a component on every 
 change/update of the table in the query.
 
 Returns an object containing **result** and **writeQueryFn**. The **result** hold information of the resulting data 
@@ -218,7 +218,74 @@ return (
 )
 ```
 
+### useSelect [React Hook]
 
+Hook a component to a read-only SQL query. It enables a listener that will rerender a component on every
+change/update of the table in the query.
+
+Returns the **result** information of the resulting data (headers and data itself).
+
+```typescript jsx
+const result = useSelect("SELECT age,name FROM beatles")
+
+const [data] = result
+
+return (
+   <table>
+      <thead>
+         <tr>
+            {data.columns.map((column, index) => (<th scope="col" key={index}>{column}</th>))}
+         </tr>
+      </thead>
+      <tbody>
+         {data.values.map(([age, name], index) => (
+            <tr key={index}>
+               <th scope="row">{name}</th>
+               <td>{age}</td>
+            </tr>
+         ))}
+      </tbody>
+   </table>
+)
+```
+
+### useInsert [React Hook]
+
+Returns a function that enables write-only access to the database.
+
+Returns a **insertFunction** to enable "write-only" queries to be executed.
+
+```typescript jsx
+const insertFunction = useInsert()
+const { result, writeQueryFn } = useQuery("SELECT age,name FROM beatles")
+
+const handleAddLennon = () => {
+   insertFunction("INSERT INTO beatles VALUES (3, 23, 'John');")
+}
+
+const [data] = result
+
+return (
+   <>
+      <button onClick={handleAddLennon}>Add Lennon</button>
+      <table>
+         <thead>
+            <tr>
+               {data.columns.map((column, index) => (<th scope="col" key={index}>{column}</th>))}
+            </tr>
+         </thead>
+         <tbody>
+            {data.values.map(([age, name], index) => (
+               <tr key={index}>
+                  <th scope="row">{name}</th>
+                  <td>{age}</td>
+               </tr>
+            ))}
+         </tbody>
+      </table>
+   </>
+)
+```
 
 ## Roadmap
 - Implement functions to support uses in Redux middlewares, Mobex and Recoil
