@@ -141,7 +141,86 @@ const App: FC = () => {
 }
 ```
 
-Road Map:
+## Documentation
+
+### Schema
+
+Represent the structure of you database, its initial data, ~~and special function to be added.~~
+The first level of the schema defines the tables names. The **fields** are used to build the table using the CREATE 
+command of SQLite. The **values** will be used to INSERT INTO the table the data in the array.
+Note that if the **values** do not follow the **fields** configuration/definition, an SQL error will be thrown.
+
+#### Example
+
+Bellow you have a schema example, and the SQL queries that will be executed.
+```typescript
+const schema: Schema = {
+    beatles: {
+        fields: { id: 'INTEGER', age: 'INTEGER', name: 'TEXT' },
+        values: [{id: 1, age: 22, name: 'Ringo'}, {id: 2, age: 20, name: 'Paul'}]
+    }
+}
+```
+Executed command
+```SQL
+CREATE TABLE beatles (id INTEGER, age INTEGER, name TEXT);
+INSERT INTO beatles VALUES (1, 22, 'Ringo');
+INSERT INTO beatles VALUES (2, 20, 'Paul');
+```
+
+### createSQL
+
+Asynchronous function that starts the whole SQLite toolkit. Its execution must be concluded before any query is executed
+to the database.
+
+As inputs, the function will get the path for the SQLite wasm file, and a schema object. And return a database 
+(new SQL.Database() from sql.js) object instance. Queries executed directly to the database instance, will not have any
+reactive effect. It is recommended to use the Reactive-sql-toolkit API.
+
+```typescript
+createSQL('http://localhost:3030/sql-wasm.wasm', schema)
+```
+
+### useQuery [React Hook]
+
+Hook to a component to a particular SQL query. It enables a listener that will rerender a component on every 
+change/update of the table in the query.
+
+Returns an object containing **result** and **writeQueryFn**. The **result** hold information of the resulting data 
+(headers and data itself). The **writeQueryFn** is an auxiliar function where "writing" queries can be executed granting
+the desired react[ish] behavior.
+
+```typescript jsx
+const { result, writeQueryFn } = useQuery("SELECT age,name FROM beatles")
+
+const handleAddLennon = () => {
+   writeQueryFn("INSERT INTO beatles VALUES (3, 23, 'John');")
+}
+
+const [data] = result
+
+return (
+   <table>
+      <thead>
+         <tr>
+            {data.columns.map((column, index) => (<th scope="col" key={index}>{column}</th>))}
+         </tr>
+      </thead>
+      <tbody>
+         {data.values.map(([age, name], index) => (
+            <tr key={index}>
+               <th scope="row">{name}</th>
+               <td>{age}</td>
+            </tr>
+         ))}
+      </tbody>
+   </table>
+)
+```
+
+
+
+## Roadmap
 - Implement functions to support uses in Redux middlewares, Mobex and Recoil
 - Improve documentation
 - Fix types export
