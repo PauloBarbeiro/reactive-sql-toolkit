@@ -1,1 +1,1 @@
-export { createSQL } from './SQL'
+export { createSQL, destroyDatabase } from './SQL'

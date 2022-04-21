@@ -1,3 +1,4 @@
+import { Database } from "sql.js";
 
 export enum WasmSources {
     prod = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.1/sql-wasm.wasm',
@@ -5,29 +6,16 @@ export enum WasmSources {
     test = 'node_modules/sql.js/dist/sql-wasm.wasm'
 }
 
-export type SqlValue = string | number | null | Uint8Array
-
-export interface  QueryExecResult {
-    columns: Array<string>
-    values: Array<Array<SqlValue>>
-}
-
-export type BindParams = Array<SqlValue> | Record<string, SqlValue> | null
-
-export interface SqlLite {
-    exec: (query:string, params?: BindParams) => Array<QueryExecResult>
-}
-
 /**
  * Defines the Singleton holding the database instance.
  */
 export interface DatabaseHolder {
     // The database instance
-    instance: SqlLite | null
+    instance: Database | null
     // Setter of the instance
-    setInstance: (bd: SqlLite) => void
+    setInstance: (bd: Database) => void
     // Getter of the instance
-    getInstance: () => SqlLite | null
+    getInstance: () => Database | null
     // Instance destructor
     destroy: () => void
 }
@@ -36,13 +24,22 @@ export type SqlDataType =
     | 'INTEGER'
     | 'INT'
     | 'TEXT'
+    | 'DATE'
 
-export interface Schema {
-    [tableName: string]: {
-        fields: Record<string, SqlDataType>
-        values?: Array<Record<string, string | number>>
-    }
+/**
+ * Structure that defines the schema definition of a table
+ */
+export type TableDefinitions = {
+    fields: Record<string, SqlDataType>
+    values?: Array<Record<string, string | number>>
 }
+
+/**
+ * Structure that defines the database schema.
+ * Each key of the 'Record' refers to a table name, and the TableDefinitions
+ * defines the initial construction of the table.
+ */
+export type Schema = Record<string, TableDefinitions>
 
 /**
  * Defines the Recorder type.

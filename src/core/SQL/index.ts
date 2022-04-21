@@ -1,13 +1,10 @@
-import initSqlJs from 'sql.js'
+import initSqlJs, { Database, BindParams, QueryExecResult } from 'sql.js'
 
 // Types
 import {
-    BindParams,
     DatabaseHolder,
-    QueryExecResult,
     Recorder,
     Schema,
-    SqlLite,
 } from "../../types";
 
 // Utils
@@ -31,8 +28,22 @@ export const database: DatabaseHolder = {
         return this.instance
     },
     destroy: function () {
+        this.instance?.close()
         this.instance = null
     }
+}
+
+/**
+ * Getter interface to the database.
+ */
+export const getDatabase = (): Database | null => database.getInstance()
+
+/**
+ * Public interface to destroy the database.
+ * It executes the db.close() function, and remove it from the singleton holder.
+ */
+export const destroyDatabase = (): void => {
+    database.destroy()
 }
 
 /**
@@ -61,7 +72,7 @@ export const createSQL = async (path: string, schema: Schema) => {
             locateFile: () => path
         })
 
-        const db: SqlLite = new SQL.Database()
+        const db: Database = new SQL.Database()
         database.setInstance(db)
 
         const [query, tablesList] = createQueryFromSchema(schema)
@@ -74,11 +85,6 @@ export const createSQL = async (path: string, schema: Schema) => {
     }
     return
 }
-
-/**
- * Getter interface to the database.
- */
-export const getDatabase = (): SqlLite | null => database.getInstance()
 
 /**
  * Registers the input 'updateState' function in the 'recorder' object
@@ -234,6 +240,7 @@ export const insertQueryPipeline = (
  */
 export default {
     createSQL,
+    destroyDatabase,
     queryPipeline,
     insertQueryPipeline,
 }

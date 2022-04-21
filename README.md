@@ -13,7 +13,11 @@ This hook enables reactive behavior with sql.js library.
 
 1. Install sql.js and reactive-sql-toolkit
 ```shell
+# For javascript projects
 npm install sql.js reactive-sql-toolkit
+
+# For Typescript projects
+npm install sql.js @types/sql.js reactive-sql-toolkit
 ```
 
 2. Export the wasm file from SQL.js folder to your distribution folder.
