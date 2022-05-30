@@ -76,7 +76,7 @@ const { result, writeQueryFn } = useQuery("SELECT age,name FROM beatles")
 
 ## Example
 
-Check for more details in the [samples repository](https://github.com/PauloBarbeiro/reactive-sql-samples)
+Check for more details in our CodeSandbox [samples app](https://codesandbox.io/s/reactive-toolkit-samples-ep3qd2)
 
 ```typescript jsx
 import { createRoot } from 'react-dom/client';
