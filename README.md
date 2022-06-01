@@ -74,9 +74,15 @@ await createSQL('http://localhost:3030/sql-wasm.wasm', schema)
 const { result, writeQueryFn } = useQuery("SELECT age,name FROM beatles")
 ```
 
-## Example
+## Examples
 
-Check for more details in our CodeSandbox [samples app](https://codesandbox.io/s/reactive-toolkit-samples-ep3qd2)
+### Demo apps
+
+Live examples: https://paulobarbeiro.github.io/react-sql-samples/
+
+The code for the demo apps you find in our special repo https://github.com/PauloBarbeiro/react-sql-samples.
+
+### Implementation Basics
 
 ```typescript jsx
 import { createRoot } from 'react-dom/client';
