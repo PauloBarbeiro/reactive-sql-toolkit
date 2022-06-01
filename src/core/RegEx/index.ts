@@ -2,16 +2,18 @@
  * Module with helper functions to execute Regular Expressions
  */
 
+import { uniq } from "../../utils/Array";
+
 /**
  * Returns the result of the String.match method against the RegEx:
- * `^(SELECT).+(?<table>${tables.join('|')})`
+ * `(?<=((FROM[ \n\r]+)|(JOIN[ \n\r]+)|(APPLY[ \n\r]+)))(${tables.join('|')})`
  *
  * @param query     Query to be tested
  * @param tables    List of database tables
  * @return the result of query.match method
  */
 export const readingQueryMatch = (query: string, tables: Array<string>): RegExpMatchArray | null => {
-    const readRegEx = new RegExp(`^(SELECT).+(?<table>${tables.join('|')})`)
+    const readRegEx = new RegExp(`(?<=((FROM[ \n\r]+)|(JOIN[ \n\r]+)|(APPLY[ \n\r]+)))(${tables.join('|')})`, 'g')
     return query.match(readRegEx)
 }
 
@@ -33,13 +35,13 @@ export const writingQueryMatch = (query: string, tables: Array<string>): RegExpM
  *
  * @param query     Query to be tested
  * @param tables    List of database tables
- * @return The table name, or null
+ * @return The tables names, or null
  */
-export const tableFromReadQuery = (query: string, tables: Array<string>): string | null => {
-    const regExRes = readingQueryMatch(query, tables)
-    const table = regExRes?.groups?.table
-    if(table) {
-        return table
+export const tableFromReadQuery = (query: string, tables: Array<string>): Array<string> | null => {
+    const regExResult = readingQueryMatch(query, tables)
+
+    if(regExResult) {
+        return uniq(regExResult) as Array<string>
     }
 
     return null

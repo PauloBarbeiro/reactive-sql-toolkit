@@ -1,6 +1,190 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`useSelect should execute a query and return some data 1`] = `
+exports[`useSelect Query with Join should execute a query and return some data 1`] = `
+<div>
+  <table>
+    <caption>
+      Table results
+    </caption>
+    <thead>
+      <tr>
+        <th
+          scope="col"
+        >
+          OrderID
+        </th>
+        <th
+          scope="col"
+        >
+          name
+        </th>
+        <th
+          scope="col"
+        >
+          OrderDate
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th
+          scope="row"
+        >
+          123
+        </th>
+        <td>
+          Ringo
+        </td>
+        <td>
+          1996-09-18
+        </td>
+      </tr>
+      <tr>
+        <th
+          scope="row"
+        >
+          456
+        </th>
+        <td>
+          Paul
+        </td>
+        <td>
+          1996-09-19
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`useSelect Query with Join should react to a change in the queried table (add John Lennon) 1`] = `
+<div>
+  <table>
+    <caption>
+      Table results
+    </caption>
+    <thead>
+      <tr>
+        <th
+          scope="col"
+        >
+          OrderID
+        </th>
+        <th
+          scope="col"
+        >
+          name
+        </th>
+        <th
+          scope="col"
+        >
+          OrderDate
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th
+          scope="row"
+        >
+          123
+        </th>
+        <td>
+          Ringo
+        </td>
+        <td>
+          1996-09-18
+        </td>
+      </tr>
+      <tr>
+        <th
+          scope="row"
+        >
+          456
+        </th>
+        <td>
+          Paul
+        </td>
+        <td>
+          1996-09-19
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`useSelect Query with Join should react to a change in the queried table (add John Lennon) 2`] = `
+<div>
+  <table>
+    <caption>
+      Table results
+    </caption>
+    <thead>
+      <tr>
+        <th
+          scope="col"
+        >
+          OrderID
+        </th>
+        <th
+          scope="col"
+        >
+          name
+        </th>
+        <th
+          scope="col"
+        >
+          OrderDate
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th
+          scope="row"
+        >
+          123
+        </th>
+        <td>
+          Ringo
+        </td>
+        <td>
+          1996-09-18
+        </td>
+      </tr>
+      <tr>
+        <th
+          scope="row"
+        >
+          456
+        </th>
+        <td>
+          Paul
+        </td>
+        <td>
+          1996-09-19
+        </td>
+      </tr>
+      <tr>
+        <th
+          scope="row"
+        >
+          789
+        </th>
+        <td>
+          John
+        </td>
+        <td>
+          1996-09-20
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`useSelect Simple Query should execute a query and return some data 1`] = `
 <div>
   <table>
     <caption>
@@ -46,7 +230,7 @@ exports[`useSelect should execute a query and return some data 1`] = `
 </div>
 `;
 
-exports[`useSelect should react to a change in the queried table (add John Lennon) 1`] = `
+exports[`useSelect Simple Query should react to a change in the queried table (add John Lennon) 1`] = `
 <div>
   <table>
     <caption>

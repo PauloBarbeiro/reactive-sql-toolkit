@@ -68,7 +68,7 @@ describe('Create Database to initialise the library', function () {
 
         it('should log and error because db was not initialized', () => {
             const test = jest.fn()
-            const spyOnLogError = jest.spyOn(console, 'error')
+            const spyOnLogError = jest.spyOn(console, 'error').mockImplementation(() => {/*Silence*/})
             const result = executeQuery('SELECT * FROM test')
             expect(spyOnLogError).toHaveBeenCalledWith('SQL-lite instance not initiated! \nRun createSQL function to initialize the service.')
             expect(result).toEqual(undefined)
@@ -151,6 +151,25 @@ describe('Create Database to initialise the library', function () {
             )
             const actuator = recorder['test'][0].deref()
             expect(actuator).toEqual(updateState)
+            expect(recorder['test'].length).toEqual(1)
+        })
+
+        it('should register two new listeners for an reading query with JOIN', () => {
+            const updateState = jest.fn()
+
+            const recorder: Recorder = {}
+
+            registerQueryListeners(
+                updateState,
+                "SELECT age,name FROM test INNER JOIN table1 WHERE id=$id1",
+                ['test', 'table1', 'table2'],
+                recorder
+            )
+            const actuator = recorder['test'][0].deref()
+            const actuatorTwo = recorder['table1'][0].deref()
+            expect(actuator).toEqual(updateState)
+            expect(actuatorTwo).toEqual(updateState)
+            expect(Object.keys(recorder).length).toEqual(2)
         })
     })
 

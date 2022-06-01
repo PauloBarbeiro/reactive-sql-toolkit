@@ -21,10 +21,15 @@ export interface DatabaseHolder {
 }
 
 export type SqlDataType =
+    | 'NULL'
+    | 'REAL'
     | 'INTEGER'
     | 'INT'
     | 'TEXT'
+    | 'BLOB'
     | 'DATE'
+    | 'TRUE'
+    | 'FALSE'
 
 /**
  * Structure that defines the schema definition of a table

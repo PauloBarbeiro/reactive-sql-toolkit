@@ -105,14 +105,16 @@ export const registerQueryListeners = (
     tables: Array<string>,
     recorder: Recorder,
 ):void => {
-    const table = tableFromReadQuery(query, tables)
+    const foundTables = tableFromReadQuery(query, tables)
 
-    if(table) {
-        if(!recorder[table]) {
-            recorder[table] = []
-        }
+    if(foundTables) {
+        foundTables.forEach(table => {
+            if(!recorder[table]) {
+                recorder[table] = []
+            }
 
-        recorder[table].push(new WeakRef<(t: number) => void>(updateState))
+            recorder[table].push(new WeakRef<(t: number) => void>(updateState))
+        })
     }
 }
 
