@@ -18,6 +18,11 @@ exports[`useQuery should execute a query and return some data 1`] = `
         >
           name
         </th>
+        <th
+          scope="col"
+        >
+          older
+        </th>
       </tr>
     </thead>
     <tbody>
@@ -27,8 +32,15 @@ exports[`useQuery should execute a query and return some data 1`] = `
         >
           Ringo
         </th>
-        <td>
+        <td
+          data-testid="age-Ringo"
+        >
           17
+        </td>
+        <td
+          data-testid="older-Ringo"
+        >
+          34
         </td>
       </tr>
       <tr>
@@ -37,8 +49,15 @@ exports[`useQuery should execute a query and return some data 1`] = `
         >
           Paul
         </th>
-        <td>
+        <td
+          data-testid="age-Paul"
+        >
           18
+        </td>
+        <td
+          data-testid="older-Paul"
+        >
+          36
         </td>
       </tr>
     </tbody>
@@ -50,6 +69,22 @@ exports[`useQuery should execute a query and return some data 1`] = `
     Add Harrison
   </button>
 </div>
+`;
+
+exports[`useQuery should execute a query and return some data 2`] = `
+<td
+  data-testid="age-Ringo"
+>
+  17
+</td>
+`;
+
+exports[`useQuery should execute a query and return some data 3`] = `
+<td
+  data-testid="age-Paul"
+>
+  18
+</td>
 `;
 
 exports[`useQuery should react to a change in the queried table (add George Harrison) 1`] = `
@@ -70,6 +105,11 @@ exports[`useQuery should react to a change in the queried table (add George Harr
         >
           name
         </th>
+        <th
+          scope="col"
+        >
+          older
+        </th>
       </tr>
     </thead>
     <tbody>
@@ -79,8 +119,15 @@ exports[`useQuery should react to a change in the queried table (add George Harr
         >
           Ringo
         </th>
-        <td>
+        <td
+          data-testid="age-Ringo"
+        >
           17
+        </td>
+        <td
+          data-testid="older-Ringo"
+        >
+          34
         </td>
       </tr>
       <tr>
@@ -89,8 +136,15 @@ exports[`useQuery should react to a change in the queried table (add George Harr
         >
           Paul
         </th>
-        <td>
+        <td
+          data-testid="age-Paul"
+        >
           18
+        </td>
+        <td
+          data-testid="older-Paul"
+        >
+          36
         </td>
       </tr>
       <tr>
@@ -99,8 +153,15 @@ exports[`useQuery should react to a change in the queried table (add George Harr
         >
           John
         </th>
-        <td>
+        <td
+          data-testid="age-John"
+        >
           22
+        </td>
+        <td
+          data-testid="older-John"
+        >
+          44
         </td>
       </tr>
     </tbody>
@@ -132,6 +193,11 @@ exports[`useQuery should react to a change in the queried table (add John Lennon
         >
           name
         </th>
+        <th
+          scope="col"
+        >
+          older
+        </th>
       </tr>
     </thead>
     <tbody>
@@ -141,8 +207,15 @@ exports[`useQuery should react to a change in the queried table (add John Lennon
         >
           Ringo
         </th>
-        <td>
+        <td
+          data-testid="age-Ringo"
+        >
           17
+        </td>
+        <td
+          data-testid="older-Ringo"
+        >
+          34
         </td>
       </tr>
       <tr>
@@ -151,8 +224,15 @@ exports[`useQuery should react to a change in the queried table (add John Lennon
         >
           Paul
         </th>
-        <td>
+        <td
+          data-testid="age-Paul"
+        >
           18
+        </td>
+        <td
+          data-testid="older-Paul"
+        >
+          36
         </td>
       </tr>
     </tbody>

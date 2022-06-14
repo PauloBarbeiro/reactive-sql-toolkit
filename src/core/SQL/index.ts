@@ -2,7 +2,7 @@ import initSqlJs, { Database, BindParams, QueryExecResult } from 'sql.js'
 
 // Types
 import {
-    DatabaseHolder,
+    DatabaseHolder, Functions,
     Recorder,
     Schema,
 } from "../../types";
@@ -66,7 +66,7 @@ const GlobalRecorder: Recorder = {}
  * @param schema    Schema definition to create the database
  * @return database or undefined
  */
-export const createSQL = async (path: string, schema: Schema) => {
+export const createSQL = async (path: string, schema: Schema, functions?: Functions) => {
     try {
         const SQL = await initSqlJs({
             locateFile: () => path
@@ -74,6 +74,12 @@ export const createSQL = async (path: string, schema: Schema) => {
 
         const db: Database = new SQL.Database()
         database.setInstance(db)
+
+        if(functions) {
+            Object.keys(functions).forEach(name => {
+                db.create_function(name, functions[name])
+            })
+        }
 
         const [query, tablesList] = createQueryFromSchema(schema)
         tables.push(...tablesList)

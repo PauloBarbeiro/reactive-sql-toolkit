@@ -1,9 +1,10 @@
-import {Schema} from "../../types";
+import {Schema, ValueFunction} from "../../types";
 
 /**
  * Create a SQL query from the input schema model.
  *
  * @param schema    Schema for the database
+ *
  * @return A tuple with the query string and a list of the tables.
  */
 export const createQueryFromSchema = (schema: Schema): [string, Array<string>] => {
@@ -23,8 +24,13 @@ export const createQueryFromSchema = (schema: Schema): [string, Array<string>] =
         const insertPart = values
             ? values.map((data) => {
                 const dataPart = Object.keys(data).reduce((acc, key, idx, keys) => {
-                    const value = data[key]
-                    return acc += (typeof value === "string" ? `'${value}'` : `${value}`) + ((idx < keys.length - 1 ? ', ' : ''))
+                    const value = typeof data[key] === "string"
+                        ? `'${data[key]}'`
+                        : (data[key] as ValueFunction).asFunc
+                            ? `${(data[key] as ValueFunction).value}`
+                            : `${data[key]}`
+
+                    return acc += (value) + ((idx < keys.length - 1 ? ', ' : ''))
                 }, '')
 
                 return `INSERT INTO ${table} VALUES (${dataPart});`

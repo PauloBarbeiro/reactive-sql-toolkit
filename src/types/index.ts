@@ -32,11 +32,23 @@ export type SqlDataType =
     | 'FALSE'
 
 /**
- * Structure that defines the schema definition of a table
+ * Type that defines a function callback to be used in the Schema values,
+ * to generate the INSERT INTO commands. The function will receive the whole
+ * value, plus its index in the values array.
+ */
+export interface ValueFunction {
+    asFunc: boolean,
+    value: string
+}
+
+/**
+ * Structure that defines the schema definition of a table.
+ * 'fields' will generate the table columns.
+ * 'values' will generate INSERT INTO commands.
  */
 export type TableDefinitions = {
     fields: Record<string, SqlDataType>
-    values?: Array<Record<string, string | number>>
+    values?: Array<Record<string, string | number | ValueFunction>>
 }
 
 /**
@@ -45,6 +57,9 @@ export type TableDefinitions = {
  * defines the initial construction of the table.
  */
 export type Schema = Record<string, TableDefinitions>
+
+export type Function = (args: any) => any
+export type Functions = Record<string, Function>
 
 /**
  * Defines the Recorder type.

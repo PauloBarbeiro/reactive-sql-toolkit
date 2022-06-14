@@ -33,4 +33,23 @@ describe('createQueryFromSchema', () => {
             + "INSERT INTO test VALUES (2, 18, 'Paul');"
         )
     })
+
+    it('should create a "CREATE TABLE" and "INSERT INTO" query with functions', () => {
+        const schema: Schema = {
+            test: {
+                fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
+                values: [
+                    {id: 1, age: { asFunc: true, value: 'plusFive(10)'}, name: 'Ling'},
+                    {id: 2, age: { asFunc: true, value: 'plusFive(20)'}, name: 'Paul'}]
+            }
+        }
+
+        const [query] = createQueryFromSchema(schema)
+
+        expect(query).toEqual(
+            "CREATE TABLE test (id INTEGER, age INTEGER, name TEXT);"
+            + "INSERT INTO test VALUES (1, plusFive(10), 'Ling');"
+            + "INSERT INTO test VALUES (2, plusFive(20), 'Paul');"
+        )
+    })
 });

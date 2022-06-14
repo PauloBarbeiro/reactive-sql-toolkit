@@ -54,6 +54,41 @@ describe('Create Database to initialise the library', function () {
                 {columns:["age","name"],values:[[10,"Ling"]]},
             ])
         }, 5000)
+
+        it('should add functions ad execute queries with them', async () => {
+            const minus = (x: number) => x - 5
+
+            const schema: Schema = {
+                test: {
+                    fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT', younger: 'INTEGER'},
+                    values: [
+                        {id: 1, age: 10, name: 'Ling', younger: { asFunc: true, value: 'minus(10)'},},
+                        {id: 2, age: 18, name: 'Paul', younger: { asFunc: true, value: 'minus(18)'}}
+                    ]
+                }
+            }
+
+            const functions = {
+                plus: (x: number) => x + 5,
+                minus
+            }
+
+            const db = await createSQL(WasmSources.test, schema, functions)
+
+            const result = db!.exec(
+                "SELECT id FROM test;"
+                + "SELECT age,name,younger, plus(age) as plus FROM test WHERE id=$id1",
+                {
+                    "$id1": 1, ":age1": 1, "@name1": "Ling",
+                    "$id2": 2, ":age2": 18, "@name2": "Paul"
+                }
+            );
+
+            expect(result).toEqual([
+                {columns:['id'],values:[[1],[2]]},
+                {columns:["age","name","younger","plus"],values:[[10,"Ling", 5, 15]]},
+            ])
+        }, 5000)
     })
 
     describe('executeQuery',  () => {
