@@ -2,7 +2,7 @@
 
 Library with a toolkit for using SQLite (wasm) on React apps. The tools are:
 - Hooks: read, and write from the database :heavy_check_mark:
-- Functions to execute queries on the database for multiple purposes :construction:
+- Functions to execute queries on the database for multiple purposes :heavy_check_mark:
 - API to create schemas for the database :heavy_check_mark:
 - API to sync and backup the data. :construction:
 
@@ -178,17 +178,93 @@ INSERT INTO beatles VALUES (1, 22, 'Ringo');
 INSERT INTO beatles VALUES (2, 20, 'Paul');
 ```
 
+### Functions
+
+It is possible to add custom functions to be used in the SQL queries, as described in the SQL.js documentation. There are
+two ways to add the functions:
+
+1. Use the sql.js `create_function` function from the dq instance;
+2. Pass a dictionary of functions to the `createSQL` function (Recommended);
+
+#### Using the Reactive-sql-toolkit API
+
+Using the second method you can use the function right in the schema object. Check the example bellow:
+
+```typescript
+const schema: Schema = {
+    beatles: {
+        fields: { id: 'INTEGER', age: 'INTEGER', name: 'TEXT', famousWith: 'INTEGER' },
+        values: [
+           {id: 1, age: 22, name: 'Ringo', famousWith: {asFunc: true, value: 'makeOlder(22)'}}, 
+           {id: 2, age: 20, name: 'Paul', famousWith: {asFunc: true, value: 'makeOlder(20)'}},
+        ]
+    }
+}
+
+const functions = {
+    makeOlder: (x: number): number => x + 10
+}
+
+createSQL('http://localhost:3030/sql-wasm.wasm', schema, functions)
+```
+It will execute the INSERT command as:
+```SQL
+CREATE TABLE beatles (id INTEGER, age INTEGER, name TEXT, famousWith INTEGER);
+INSERT INTO beatles VALUES (1, 22, 'Ringo', makeOlder(22));
+INSERT INTO beatles VALUES (2, 20, 'Paul', makeOlder(20));
+```
+Later the functions can be used in the SELECT queries:
+```typescript
+const { result, writeQueryFn } = useQuery("SELECT name, makeOlder(age) as older FROM beatles")
+```
+
+#### Using the SQL.js API
+
+Alternatively, it is also possible to use the sql.js create_function API. Here is an example:
+
+```typescript jsx
+const schema = {
+   beatles: {
+      fields: { id: "INTEGER", age: "INTEGER", name: "TEXT" },
+      values: [
+         { id: 1, age: 20, name: "Ringo" },
+         { id: 2, age: 18, name: "Paul" }
+      ]
+   }
+};
+
+const TestComponent = () => { 
+    useEffect(() => {
+        createSQL(sqlWasm, schema)
+            .then((database) => {
+               if (!!database) {
+                  // You can also use JavaScript functions inside your SQL code
+                  // Create the js function you need
+    
+                  // Specifies the SQL function's name, the number of it's arguments, and the js function to use
+                  dataBase.create_function("double", double);
+               }
+            })
+    }, []);
+
+    const { result } = useQuery("SELECT name, age, double(age) FROM beatles");
+
+   // return (...)
+}
+```
+
 ### createSQL
 
 Asynchronous function that starts the whole SQLite toolkit. Its execution must be concluded before any query is executed
 to the database.
 
-As inputs, the function will get the path for the SQLite wasm file, and a schema object. And return a database 
-(new SQL.Database() from sql.js) object instance. Queries executed directly to the database instance, will not have any
-reactive effect. It is recommended to use the Reactive-sql-toolkit API.
+As inputs, the function will get the path for the SQLite wasm file and a `schema` object as mandatory parameters (the 
+`functions` dictionary is optional). And return a database (new SQL.Database() from sql.js) object instance. Queries 
+executed directly to the database instance, will not have any reactive effect. 
+It is recommended to use the Reactive-sql-toolkit API.
 
 ```typescript
-createSQL('http://localhost:3030/sql-wasm.wasm', schema)
+createSQL('http://localhost:3030/sql-wasm.wasm', schema, functions)
 ```
 
 ### useQuery [React Hook]
