@@ -1,6 +1,6 @@
 {
   "name": "reactive-sql-toolkit",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "author": "Paulo Barbeiro",
   "license": "GPL-3.0",
   "description": "React implementation of sql.js",

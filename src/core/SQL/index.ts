@@ -64,15 +64,20 @@ const GlobalRecorder: Recorder = {}
  *
  * @param path      Path to the wasm file
  * @param schema    Schema definition to create the database
+ * @param functions Functions map to be added to the database
  * @return database or undefined
  */
 export const createSQL = async (path: string, schema: Schema, functions?: Functions) => {
     try {
+        const buffer = schema.dataBuffer
+            ? new Uint8Array(schema.dataBuffer)
+            : undefined
+
         const SQL = await initSqlJs({
             locateFile: () => path
         })
 
-        const db: Database = new SQL.Database()
+        const db: Database = new SQL.Database(buffer)
         database.setInstance(db)
 
         if(functions) {

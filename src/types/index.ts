@@ -56,7 +56,10 @@ export type TableDefinitions = {
  * Each key of the 'Record' refers to a table name, and the TableDefinitions
  * defines the initial construction of the table.
  */
-export type Schema = Record<string, TableDefinitions>
+export interface Schema {
+    tables: Record<string, TableDefinitions>,
+    dataBuffer?: ArrayBuffer
+}
 
 export type Function = (args: any) => any
 export type Functions = Record<string, Function>

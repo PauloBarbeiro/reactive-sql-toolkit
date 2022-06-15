@@ -57,9 +57,11 @@ Debug: 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.1/sql-wasm-debug.wasm'
       "INSERT INTO table_name (fields, ...fieldN) VALUES (value, ...valueN);"
 ```typescript jsx
 const schema: Schema = {
-    beatles: {
-        fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
-        values: [{id: 1, age: 20, name: 'Ringo'}, {id: 2, age: 18, name: 'Paul'}]
+    tables: {
+       beatles: {
+          fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
+          values: [{id: 1, age: 20, name: 'Ringo'}, {id: 2, age: 18, name: 'Paul'}]
+       } 
     }
 }
 
@@ -91,10 +93,12 @@ import createSQL, { useQuery } from 'reactive-sql-toolkit'
 
 // Defines a database schema
 const schema: Schema = {
-    beatles: {
-        fields: { id: 'INTEGER', age: 'INTEGER', name: 'TEXT' },
-        values: [{id: 1, age: 20, name: 'Ringo'}, {id: 2, age: 18, name: 'Paul'}]
-    }
+   tables: {
+      beatles: {
+         fields: { id: 'INTEGER', age: 'INTEGER', name: 'TEXT' },
+         values: [{id: 1, age: 20, name: 'Ringo'}, {id: 2, age: 18, name: 'Paul'}]
+      }
+   }
 }
 
 // Creates the SQLite instance and build the tables
@@ -155,20 +159,39 @@ const App: FC = () => {
 
 ### Schema
 
-Represent the structure of you database, its initial data, ~~and special function to be added.~~
-The first level of the schema defines the tables names. The **fields** are used to build the table using the CREATE 
-command of SQLite. The **values** will be used to INSERT INTO the table the data in the array.
+Represent the structure of your database, its initial data, and optionally an ArrayBuffer generated from a SQLite file.
+The `tables` property holds the tables definitions. Each child of `tables` will generate a table with the same name; 
+The **fields** are used to build the table using the SQL CREATE command. The **values** will be used to INSERT INTO the table.
+
 Note that if the **values** do not follow the **fields** configuration/definition, an SQL error will be thrown.
 
-#### Example
+Bellow you can see the schema definition.
+```typescript
+export type TableDefinitions = {
+    fields: Record<string, SqlDataType>
+    values?: Array<Record<string, string | number | ValueFunction>>
+}
+
+export interface Schema {
+    tables: Record<string, TableDefinitions>,
+    dataBuffer?: ArrayBuffer
+}
+```
+
+The `dataBuffer` is optional. If passed it will be converted to an Uint8Array, and passed to the SQL.Database constructor,
+as demonstrated in the [SQL.js documentation](https://sql.js.org/#/?id=loading-a-database-from-a-server)
+
+#### Examples
 
 Bellow you have a schema example, and the SQL queries that will be executed.
 ```typescript
 const schema: Schema = {
-    beatles: {
-        fields: { id: 'INTEGER', age: 'INTEGER', name: 'TEXT' },
-        values: [{id: 1, age: 22, name: 'Ringo'}, {id: 2, age: 20, name: 'Paul'}]
-    }
+   tables: {
+      beatles: {
+         fields: { id: 'INTEGER', age: 'INTEGER', name: 'TEXT' },
+         values: [{id: 1, age: 22, name: 'Ringo'}, {id: 2, age: 20, name: 'Paul'}]
+      }
+   },
 }
 ```
 Executed command
@@ -177,6 +200,8 @@ CREATE TABLE beatles (id INTEGER, age INTEGER, name TEXT);
 INSERT INTO beatles VALUES (1, 22, 'Ringo');
 INSERT INTO beatles VALUES (2, 20, 'Paul');
 ```
+
+If a schema is passed if the `dataBuffer`, the create command will use `CREATE TABLE IF NOT EXISTS`.
 
 ### Functions
 
@@ -238,9 +263,8 @@ const TestComponent = () => {
         createSQL(sqlWasm, schema)
             .then((database) => {
                if (!!database) {
-                  // You can also use JavaScript functions inside your SQL code
-                  // Create the js function you need
-    
+                  // You can also use JavaScript functions inside your SQL code.
+                  // Create the js function you need.
                   // Specifies the SQL function's name, the number of it's arguments, and the js function to use
                   dataBase.create_function("double", double);
                }

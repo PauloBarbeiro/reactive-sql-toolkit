@@ -4,8 +4,10 @@ import {Schema, WasmSources} from "./types";
 describe('createSQL', () => {
     it('should execute the createSQL function', async () => {
         const schema: Schema = {
-            test: {
-                fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
+            tables: {
+                test: {
+                    fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
+                }
             }
         }
 

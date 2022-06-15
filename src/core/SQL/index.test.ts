@@ -14,13 +14,28 @@ import {
     Schema,
     Recorder,
 } from '../../types'
+import {getArrayBufferForTest} from "../../utils/testUtils";
+
+let sampleArrayBuffer: any;
 
 describe('Create Database to initialise the library', function () {
     describe('createSQL', () => {
+        beforeAll(async () => {
+            sampleArrayBuffer = await getArrayBufferForTest({
+                    tables: {
+                        test: {
+                            fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
+                        }
+                    }
+                })
+        })
+
         it('should initialize a database instance', async () => {
             const schema: Schema = {
-                test: {
-                    fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
+                tables: {
+                    test: {
+                        fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
+                    }
                 }
             }
 
@@ -32,9 +47,11 @@ describe('Create Database to initialise the library', function () {
 
         it('should execute a SQL query', async () => {
             const schema: Schema = {
-                test: {
-                    fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
-                    values: [{id: 1, age: 10, name: 'Ling'}, {id: 2, age: 18, name: 'Paul'}]
+                tables: {
+                    test: {
+                        fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
+                        values: [{id: 1, age: 10, name: 'Ling'}, {id: 2, age: 18, name: 'Paul'}]
+                    }
                 }
             }
 
@@ -55,16 +72,43 @@ describe('Create Database to initialise the library', function () {
             ])
         }, 5000)
 
-        it('should add functions ad execute queries with them', async () => {
+        it('should initialize a database instance with an ArrayBuffer', async () => {
+            const schema: Schema = {
+                tables: {
+                    test: {
+                        fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
+                    }
+                },
+                dataBuffer: sampleArrayBuffer
+            }
+
+            const db = await createSQL(WasmSources.test, schema)
+
+            expect(db).toBeTruthy()
+            expect(db).toHaveProperty('exec')
+
+            const result = db!.exec(
+                "INSERT INTO test VALUES (1, 10, 'Ling');"
+                + "SELECT * FROM test;"
+            );
+
+            expect(result).toEqual([
+                {columns:["id","age","name"],values:[[1,10,"Ling"]]},
+            ])
+        }, 5000)
+
+        it('should add functions and execute queries with them', async () => {
             const minus = (x: number) => x - 5
 
             const schema: Schema = {
-                test: {
-                    fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT', younger: 'INTEGER'},
-                    values: [
-                        {id: 1, age: 10, name: 'Ling', younger: { asFunc: true, value: 'minus(10)'},},
-                        {id: 2, age: 18, name: 'Paul', younger: { asFunc: true, value: 'minus(18)'}}
-                    ]
+                tables: {
+                    test: {
+                        fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT', younger: 'INTEGER'},
+                        values: [
+                            {id: 1, age: 10, name: 'Ling', younger: { asFunc: true, value: 'minus(10)'},},
+                            {id: 2, age: 18, name: 'Paul', younger: { asFunc: true, value: 'minus(18)'}}
+                        ]
+                    }
                 }
             }
 
@@ -111,9 +155,11 @@ describe('Create Database to initialise the library', function () {
 
         it('should execute a simple query', async () => {
             const schema: Schema = {
-                test: {
-                    fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
-                    values: [{id: 1, age: 10, name: 'Ling'}, {id: 2, age: 18, name: 'Paul'}]
+                tables: {
+                    test: {
+                        fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
+                        values: [{id: 1, age: 10, name: 'Ling'}, {id: 2, age: 18, name: 'Paul'}]
+                    }
                 }
             }
 
@@ -127,9 +173,11 @@ describe('Create Database to initialise the library', function () {
 
         it('should execute a query with params', async () => {
             const schema: Schema = {
-                test: {
-                    fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
-                    values: [{id: 1, age: 10, name: 'Ling'}, {id: 2, age: 18, name: 'Paul'}]
+                tables: {
+                    test: {
+                        fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
+                        values: [{id: 1, age: 10, name: 'Ling'}, {id: 2, age: 18, name: 'Paul'}]
+                    }
                 }
             }
 
@@ -146,7 +194,7 @@ describe('Create Database to initialise the library', function () {
         })
 
         it('should return empty results', async () => {
-            await createSQL(WasmSources.test, {})
+            await createSQL(WasmSources.test, {tables: {}})
 
             const spyOnLogError = jest.spyOn(console, 'error').mockImplementation(() => {/*Silent*/})
             const result = executeQuery(
@@ -249,9 +297,11 @@ describe('Create Database to initialise the library', function () {
     describe('queryPipeline', () => {
         beforeAll(async () => {
             const schema: Schema = {
-                test: {
-                    fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
-                    values: [{id: 1, age: 10, name: 'Ling'}, {id: 2, age: 18, name: 'Paul'}]
+                tables: {
+                    test: {
+                        fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
+                        values: [{id: 1, age: 10, name: 'Ling'}, {id: 2, age: 18, name: 'Paul'}]
+                    }
                 }
             }
 
@@ -283,9 +333,11 @@ describe('Create Database to initialise the library', function () {
 
         beforeAll(async () => {
             const schema: Schema = {
-                test: {
-                    fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
-                    values: [{id: 1, age: 10, name: 'Ling'}, {id: 2, age: 18, name: 'Paul'}]
+                tables: {
+                    test: {
+                        fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
+                        values: [{id: 1, age: 10, name: 'Ling'}, {id: 2, age: 18, name: 'Paul'}]
+                    }
                 }
             }
 

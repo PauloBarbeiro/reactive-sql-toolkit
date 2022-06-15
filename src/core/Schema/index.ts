@@ -8,14 +8,18 @@ import {Schema, ValueFunction} from "../../types";
  * @return A tuple with the query string and a list of the tables.
  */
 export const createQueryFromSchema = (schema: Schema): [string, Array<string>] => {
-    const tables = Object.keys(schema)
+    const { tables, dataBuffer } = schema
+    const cautionMode: boolean = !!dataBuffer
+    const tablesList = Object.keys(tables)
 
-    const createTable = "CREATE TABLE"
+    const createTable = cautionMode
+        ? "CREATE TABLE IF NOT EXISTS"
+        : "CREATE TABLE"
 
     let query = ""
 
-    tables.forEach(table => {
-        const { fields, values } = schema[table]
+    tablesList.forEach(table => {
+        const { fields, values } = tables[table]
 
         const fieldsPart = Object.keys(fields).reduce((acc, field, idx, keys) => {
             return acc + `${field} ${fields[field]}` + (idx < keys.length - 1 ? ', ' : '')
@@ -30,7 +34,7 @@ export const createQueryFromSchema = (schema: Schema): [string, Array<string>] =
                             ? `${(data[key] as ValueFunction).value}`
                             : `${data[key]}`
 
-                    return acc += (value) + ((idx < keys.length - 1 ? ', ' : ''))
+                    return acc + (value) + ((idx < keys.length - 1 ? ', ' : ''))
                 }, '')
 
                 return `INSERT INTO ${table} VALUES (${dataPart});`
@@ -40,5 +44,5 @@ export const createQueryFromSchema = (schema: Schema): [string, Array<string>] =
         query += `${createTable} ${table} (${fieldsPart});${insertPart}`
     })
 
-    return [query, tables]
+    return [query, tablesList]
 }

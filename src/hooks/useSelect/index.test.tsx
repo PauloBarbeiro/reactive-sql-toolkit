@@ -41,9 +41,11 @@ describe('useSelect', function () {
 
         beforeAll(async () => {
             const schema: Schema = {
-                test: {
-                    fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
-                    values: [{id: 1, age: 17, name: 'Ringo'}, {id: 2, age: 18, name: 'Paul'}]
+                tables: {
+                    test: {
+                        fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
+                        values: [{id: 1, age: 17, name: 'Ringo'}, {id: 2, age: 18, name: 'Paul'}]
+                    }
                 }
             }
 
@@ -115,16 +117,18 @@ describe('useSelect', function () {
 
         beforeAll(async () => {
             const schema: Schema = {
-                customers: {
-                    fields: {id: 'INTEGER', name: 'TEXT'},
-                    values: [{id: 1, name: 'Ringo'}, {id: 2, name: 'Paul'}]
-                },
-                orders: {
-                    fields: {OrderID: 'INTEGER', CustomerID: 'INTEGER', OrderDate: 'DATE'},
-                    values: [
-                        {OrderID: 123, CustomerID: 1, OrderDate: '1996-09-18'},
-                        {OrderID: 456, CustomerID: 2, OrderDate: '1996-09-19'}
-                    ]
+                tables: {
+                    customers: {
+                        fields: {id: 'INTEGER', name: 'TEXT'},
+                        values: [{id: 1, name: 'Ringo'}, {id: 2, name: 'Paul'}]
+                    },
+                    orders: {
+                        fields: {OrderID: 'INTEGER', CustomerID: 'INTEGER', OrderDate: 'DATE'},
+                        values: [
+                            {OrderID: 123, CustomerID: 1, OrderDate: '1996-09-18'},
+                            {OrderID: 456, CustomerID: 2, OrderDate: '1996-09-19'}
+                        ]
+                    }
                 }
             }
 

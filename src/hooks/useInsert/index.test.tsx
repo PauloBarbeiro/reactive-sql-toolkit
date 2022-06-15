@@ -52,9 +52,11 @@ const TestComponent = () => {
 describe('useInsert', function () {
     beforeAll(async () => {
         const schema: Schema = {
-            test: {
-                fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
-                values: [{id: 1, age: 17, name: 'Ringo'}, {id: 2, age: 18, name: 'Paul'}]
+            tables: {
+                test: {
+                    fields: {id: 'INTEGER', age: 'INTEGER', name: 'TEXT'},
+                    values: [{id: 1, age: 17, name: 'Ringo'}, {id: 2, age: 18, name: 'Paul'}]
+                }
             }
         }
 
